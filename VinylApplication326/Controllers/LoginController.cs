@@ -26,5 +26,36 @@ namespace VinylApplication326.Controllers
                 return View("LoginFailure", user);
             }
         }
+
+        #region REGISTER
+
+        /// <summary>
+        /// Method to show the user the register page.
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Register()
+        {
+            return View("Register");
+        }
+
+        /// <summary>
+        /// Triggered when a user submits a form to register. Should add new user to database
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public IActionResult ProccessRegister(UserModel user)
+        {
+            try
+            {
+
+            }catch (Exception ex)
+            {
+
+            }
+            return View();
+        }
+        #endregion REGISTER
+
+
     }
 }
