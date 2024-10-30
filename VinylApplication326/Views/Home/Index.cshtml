@@ -1,8 +1,15 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    string[] greetings = new string[] { "Hello!", "Hola!", "Bienvenidos!", "hi!", "Welcome!", "Beautiful Weather We're Having!" };
+    Random rng = new Random();
+    int rand = rng.Next(greetings.Length);
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center mt-4">
+    <h1 class="mt-5" style="font-family: Georgia, serif;">@greetings[rand]</h1>
+    <h1 class="mb-5" style="font-family: Georgia, serif; font-weight: bold;">This is the CPG Vinyl Manager</h1>
+    <form class="d-grid gap-4 col-3 mx-auto">
+        <button class="btn btn-success" type="submit" asp-controller="Login" asp-action="Index">Login</button>
+        <button class="btn btn-primary" role="button">Register</button>
+    </form>
 </div>
