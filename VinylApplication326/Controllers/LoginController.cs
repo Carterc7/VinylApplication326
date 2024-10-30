@@ -1,10 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using VinylApplication326.Business;
 using VinylApplication326.Models;
 
 namespace VinylApplication326.Controllers
 {
     public class LoginController : Controller
     {
+        
+         
+
+
         public IActionResult Index()
         {
             return View();
@@ -26,5 +31,38 @@ namespace VinylApplication326.Controllers
                 return View("LoginFailure", user);
             }
         }
+
+        #region REGISTER
+
+        /// <summary>
+        /// Method to show the user the register page.
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Register()
+        {
+            return View("Register");
+        }
+
+        /// <summary>
+        /// Triggered when a user submits a form to register. Should add new user to database
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public IActionResult ProccessRegister(UserModel user)
+        {
+            // Model: Username and passowrd only
+            try
+            {
+                LoginBusiness loginBusiness = new LoginBusiness();
+                loginBusiness.RegisterNewUser(user);
+                return View("RegisterSuccess");
+            }catch (Exception ex)
+            {
+                return View("RegisterFailure");
+            }
+        }
+        #endregion REGISTER
+
+
     }
 }
