@@ -1,24 +1,24 @@
 ﻿@model VinylApplication326.Models.UserModel
 
 <div>
-    <h4>Login Failure</h4>
+    <h1 class="text-danger">Login Failure</h1>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.UserName)
+            Username
         </dt>
-        <dd class="col-sm-10">
+        <dd class="col-sm-10 text-danger">
             @Html.DisplayFor(model => model.UserName)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Password)
+            Password
         </dt>
-        <dd class="col-sm-10">
+        <dd class="col-sm-10 text-danger">
             @Html.DisplayFor(model => model.Password)
         </dd>
     </dl>
 </div>
 <div>
-    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
-    <a asp-action="Index">Back to List</a>
+    <a asp-controller="Login" asp-action="Index" class="text-danger">Try Again?</a>
 </div>
+
