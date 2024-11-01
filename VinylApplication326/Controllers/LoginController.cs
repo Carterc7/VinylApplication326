@@ -12,7 +12,7 @@ namespace VinylApplication326.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return View("Index", new UserModel());
         }
 
         /// <summary>
@@ -22,13 +22,26 @@ namespace VinylApplication326.Controllers
         /// <returns>IActionResult</returns>
         public IActionResult ProcessLogin(UserModel user)
         {
-            if (user.UserName == "root" && user.Password == "root")
+            if (!ModelState.IsValid)
             {
-                return View("LoginSuccess", user);
+                return View("Index", user);
             }
-            else
+            try
             {
-                return View("LoginFailure", user);
+                LoginBusiness loginBusiness = new LoginBusiness();
+                UserModel loggedInUser = loginBusiness.AuthenticateUser(user);
+                if (loggedInUser.Id == 0)
+                {
+                    HttpContext.Session.SetString("UserId", user.Id.ToString());
+                    return View("LoginFailure");
+                }
+                
+                return View("LoginSuccess");
+            }
+            catch (Exception ex)
+            {
+                return View("LoginFailure");
+
             }
         }
 
@@ -40,7 +53,8 @@ namespace VinylApplication326.Controllers
         /// <returns></returns>
         public IActionResult Register()
         {
-            return View("Register");
+            
+            return View("Register", new UserModel());
         }
 
         /// <summary>
@@ -51,14 +65,19 @@ namespace VinylApplication326.Controllers
         public IActionResult ProccessRegister(UserModel user)
         {
             // Model: Username and passowrd only
+            if(!ModelState.IsValid)
+            {
+                return View("Register", user);
+            }
             try
             {
                 LoginBusiness loginBusiness = new LoginBusiness();
-                loginBusiness.RegisterNewUser(user);
+                bool x = loginBusiness.RegisterNewUser(user);
                 return View("RegisterSuccess");
             }catch (Exception ex)
             {
                 return View("RegisterFailure");
+
             }
         }
         #endregion REGISTER
