@@ -7,14 +7,14 @@ namespace VinylApplication326.Business
     {
         public LoginDAO loginDAO = new LoginDAO();
 
-        public void AuthenticateUser(UserModel user)
+        public UserModel AuthenticateUser(UserModel user)
         {
-            loginDAO.AuthenticateUser(user);
+            return loginDAO.AuthenticateUser(user);
         }
 
-        public void RegisterNewUser(UserModel user)
+        public bool RegisterNewUser(UserModel user)
         {
-            loginDAO.RegisterNewUser(user);
+            return loginDAO.RegisterNewUser(user);
         }
     }
 }
