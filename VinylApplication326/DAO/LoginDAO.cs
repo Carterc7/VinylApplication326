@@ -29,6 +29,7 @@ namespace VinylApplication326.DAO
                     MySqlDataReader reader = command.ExecuteReader();
                     if (reader.HasRows)
                     {
+                        reader.Read();
                         // update the flag to return a found user
                         return new UserModel
                         {
