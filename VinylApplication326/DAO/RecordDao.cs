@@ -1,4 +1,5 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using VinylApplication326.Models;
@@ -14,16 +15,16 @@ namespace VinylApplication326.DAO
         {
             records = new List<RecordModel>
             {
-                new RecordModel { Id = 1, Name = "Revolver By The Beatles", Image = "https://upload.wikimedia.org/wikipedia/en/e/ec/Revolver_%28album_cover%29.jpg", Video = "video1.mp4", Favorite = 1, UsersId = 101 },
-                new RecordModel { Id = 2, Name = "Buring Desire", Image = "https://upload.wikimedia.org/wikipedia/en/8/8b/Mike_-_Burning_Desire.png", Video = "video2.mp4", Favorite = 0, UsersId = 102 },
-                new RecordModel { Id = 3, Name = "Dots and Loops", Image = "https://upload.wikimedia.org/wikipedia/en/7/7b/Stereolabdotsandloops.png", Video = "video3.mp4", Favorite = 1, UsersId = 103 },
-                new RecordModel { Id = 4, Name = "Heaven Or Las Vegas", Image = "https://upload.wikimedia.org/wikipedia/en/6/60/Cocteau_Twins—Heaven_or_Las_Vegas.jpg", Video = "video4.mp4", Favorite = 0, UsersId = 104 },
-                new RecordModel { Id = 5, Name = "Record 5", Image = "image5.jpg", Video = "video5.mp4", Favorite = 1, UsersId = 105 },
-                new RecordModel { Id = 6, Name = "Record 6", Image = "image6.jpg", Video = "video6.mp4", Favorite = 0, UsersId = 106 },
-                new RecordModel { Id = 7, Name = "Record 7", Image = "image7.jpg", Video = "video7.mp4", Favorite = 1, UsersId = 107 },
-                new RecordModel { Id = 8, Name = "Record 8", Image = "image8.jpg", Video = "video8.mp4", Favorite = 0, UsersId = 108 },
-                new RecordModel { Id = 9, Name = "Record 9", Image = "image9.jpg", Video = "video9.mp4", Favorite = 1, UsersId = 109 },
-                new RecordModel { Id = 10, Name = "Record 10", Image = "image10.jpg", Video = "video10.mp4", Favorite = 0, UsersId = 110 }
+                new RecordModel { Id = 1, Name = "Revolver By The Beatles", Image = "https://upload.wikimedia.org/wikipedia/en/e/ec/Revolver_%28album_cover%29.jpg", Video = "video1.mp4", Favorite = true, UsersId = 101 },
+                new RecordModel { Id = 2, Name = "Buring Desire", Image = "https://upload.wikimedia.org/wikipedia/en/8/8b/Mike_-_Burning_Desire.png", Video = "video2.mp4", Favorite = false, UsersId = 102 },
+                new RecordModel { Id = 3, Name = "Dots and Loops", Image = "https://upload.wikimedia.org/wikipedia/en/7/7b/Stereolabdotsandloops.png", Video = "video3.mp4", Favorite = true, UsersId = 103 },
+                new RecordModel { Id = 4, Name = "Heaven Or Las Vegas", Image = "https://upload.wikimedia.org/wikipedia/en/6/60/Cocteau_Twins—Heaven_or_Las_Vegas.jpg", Video = "video4.mp4", Favorite = false, UsersId = 104 },
+                new RecordModel { Id = 5, Name = "Record 5", Image = "image5.jpg", Video = "video5.mp4", Favorite = true, UsersId = 105 },
+                new RecordModel { Id = 6, Name = "Record 6", Image = "image6.jpg", Video = "video6.mp4", Favorite = false, UsersId = 106 },
+                new RecordModel { Id = 7, Name = "Record 7", Image = "image7.jpg", Video = "video7.mp4", Favorite = true, UsersId = 107 },
+                new RecordModel { Id = 8, Name = "Record 8", Image = "image8.jpg", Video = "video8.mp4", Favorite = false, UsersId = 108 },
+                new RecordModel { Id = 9, Name = "Record 9", Image = "image9.jpg", Video = "video9.mp4", Favorite = true, UsersId = 109 },
+                new RecordModel { Id = 10, Name = "Record 10", Image = "image10.jpg", Video = "video10.mp4", Favorite = false, UsersId = 110 }
             };
         }
 
@@ -49,8 +50,8 @@ namespace VinylApplication326.DAO
                                 Id = reader.GetInt32("Id"), // Ensures we get the integer value directly
                                 Name = reader["Name"].ToString(),
                                 Image = reader["Image"] as string, // Safely handle null values
-                                Video = reader["Video"] as string, // Safely handle null values
-                                Favorite = reader.GetInt32("Favorite"), // Assuming Favorite is stored as an integer (1 or 0)
+                                Video = reader["Video"] as string,// Safely handle null values
+                                Favorite = reader.GetBoolean("Favorite"), // Assuming Favorite is stored as an integer (1 or 0)
                                 UsersId = reader.GetInt32("users_Id") // Ensure UsersId matches the field in your table
                             };
 
@@ -66,6 +67,7 @@ namespace VinylApplication326.DAO
                 }
             }
             return searchResults;
+            //return records;
         }
 
         public void FavoriteToggle(int recordId)
@@ -74,7 +76,7 @@ namespace VinylApplication326.DAO
             {
                 if (record.Id == recordId)
                 {
-                    record.Favorite = record.Favorite == 0 ? 1 : 0;
+                    record.Favorite = record.Favorite == true ? true : false;
                     break;
                 }
             }
@@ -90,6 +92,64 @@ namespace VinylApplication326.DAO
                     command.Parameters.AddWithValue("@Id", recordId);
                     command.ExecuteNonQuery();
                 }
+            }
+        }
+
+        public bool createRecord(RecordModel record)
+        {
+            using (MySqlConnection connection = new MySqlConnection(connString))
+            {
+                
+                string query = "INSERT INTO records(Name, Image, Video, Favorite, users_Id) VALUES (@Name, @Image, @Video, @Favorite, @userId)";
+
+                MySqlCommand command = new MySqlCommand(query, connection);
+
+                command.Parameters.AddWithValue("@Name", record.Name);
+                command.Parameters.AddWithValue("@Image", record.Image);
+                command.Parameters.AddWithValue("@Video", record.Video);
+                command.Parameters.AddWithValue("@Favorite", record.Favorite);
+                command.Parameters.AddWithValue("@UserId", record.UsersId);
+                try
+                {
+                    connection.Open();
+                    MySqlDataReader reader = command.ExecuteReader();
+                    //command.ExecuteNonQuery();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return false;
+                }
+
+            }
+            
+        }
+
+        public bool deleteRecord(int recordId, int userId)
+        {
+            using (MySqlConnection connection = new MySqlConnection(connString))
+            {
+
+                string query = "DELETE FROM records WHERE Id = @RecordId && users_Id = @UserId";
+
+                MySqlCommand command = new MySqlCommand(query, connection);
+
+                command.Parameters.AddWithValue("@RecordId", recordId);
+                command.Parameters.AddWithValue("@UserId", userId);
+                try
+                {
+                    connection.Open();
+                    MySqlDataReader reader = command.ExecuteReader();
+                    //command.ExecuteNonQuery();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return false;
+                }
+
             }
         }
     }

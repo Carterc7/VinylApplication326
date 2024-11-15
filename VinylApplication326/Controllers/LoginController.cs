@@ -32,10 +32,10 @@ namespace VinylApplication326.Controllers
                 UserModel loggedInUser = loginBusiness.AuthenticateUser(user);
                 if (loggedInUser.Id == 0)
                 {
-                    HttpContext.Session.SetString("UserId", user.Id.ToString());
                     return View("LoginFailure");
                 }
                 
+                HttpContext.Session.SetString("UserId", loggedInUser.Id.ToString());
                 return View("LoginSuccess");
             }
             catch (Exception ex)
