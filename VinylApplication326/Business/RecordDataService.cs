@@ -23,5 +23,15 @@ namespace VinylApplication326.Services
         {
             dao.FavoriteToggle(recordId);
         }
+
+        public bool createRecord(RecordModel model)
+        {
+            return dao.createRecord(model);
+        }
+
+        public bool deleteRecord(int recordId, int userId)
+        {
+            return dao.deleteRecord(recordId, userId);
+        }
     }
 }

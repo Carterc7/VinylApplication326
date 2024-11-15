@@ -4,8 +4,15 @@
 @{
     List<RecordModel> records = ViewBag.records;
 }
+<style>
+    .table td, .table th {
+        vertical-align: middle;
+    }
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@* <button type="button" class="btn btn-success btn-lg float-right">Add New +</button> *@
+<a href="@Url.Action("CreateRecord", "Browse")" class="btn btn-success btn-lg float-right">Add New +</a>
 
-<button type="button" class="btn btn-success btn-lg float-right">Add New +</button>
 
 <table class="table table-striped">
     <thead>
@@ -14,7 +21,7 @@
             <th scope="col">Title</th>
             <th scope="col">Play?</th>
             <th scope="col">Favorite</th>
-
+            <th scope="col"></th>
         </tr>
     </thead>
     <tbody>
@@ -30,18 +37,42 @@
                     <form asp-action="FavoriteRecord" method="post">
                         <input type="hidden" name="recordId" value="@record.Id" />
                         <button type="submit" class="btn btn-link">
-                            @if (record.Favorite == 1)
+                            @if (record.Favorite == true)
                             {
                                 <img src="@Url.Content("~/star-curved-outline-filled.png")" alt="star" />
                             }
-                            else if (record.Favorite == 0)
+                            else if (record.Favorite == false)
                             {
                                 <img src="@Url.Content("~/3d1b0c5a3d1d28385b2e22bc73d1cc4e.jpg")" alt="star" />
                             }
                         </button>
                     </form>
                 </td>
+                <td><input type="button" data-id="@record.Id" class="delete-button" value="X" /></td>
             </tr>
         }
     </tbody>
 </table>
+
+<script>
+    $(".delete-button").on("click", function(e){
+        console.log("here");
+        var id = $(this).attr("data-id");
+        console.log(id);
+        $.ajax({
+            type: "POST",
+            url: "/Browse/DeleteRecord",
+            data: {id: id},
+            success: function (response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    console.error("Error: The record could not be deleted.");
+                }
+            },
+            error: function (error) {
+                console.error("An error occurred while deleting the record", error);
+            }
+        });
+    })
+</script>
