@@ -48,21 +48,23 @@
                         </button>
                     </form>
                 </td>
-                <td><input type="button" data-id="@record.Id" class="delete-button" value="X" /></td>
+                <td>
+                    <input type="button" data-id="@record.Id" class="delete-button" value="X" />
+                    <input type="button" data-id="@record.Id" class="edit-button" value="✎" onclick="window.location.href='/Browse/EditRecord/' + @record.Id" />
+
+                </td>
             </tr>
         }
     </tbody>
 </table>
 
 <script>
-    $(".delete-button").on("click", function(e){
-        console.log("here");
+    $(".delete-button").on("click", function (e) {
         var id = $(this).attr("data-id");
-        console.log(id);
         $.ajax({
             type: "POST",
             url: "/Browse/DeleteRecord",
-            data: {id: id},
+            data: { id: id },
             success: function (response) {
                 if (response.success) {
                     location.reload();
@@ -74,5 +76,23 @@
                 console.error("An error occurred while deleting the record", error);
             }
         });
-    })
+    });
+
+    // $(".edit-button").on("click", function (e) {
+    //     var id = $(this).attr("data-id");
+    //     $.ajax({
+    //         type: "POST",
+    //         url: "/Browse/EditRecord",
+    //         data: { id: id },
+    //         success: function (response) {
+    //             if (response.success) {
+    //             } else {
+    //                 console.error("Error: The record could not be deleted.");
+    //             }
+    //         },
+    //         error: function (error) {
+    //             console.error("An error occurred while deleting the record", error);
+    //         }
+    //     });
+    // })
 </script>

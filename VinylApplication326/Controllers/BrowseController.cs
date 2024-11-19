@@ -64,6 +64,28 @@ namespace VinylApplication326.Controllers
             }
         }
 
+        public ActionResult EditRecord(int id)
+        {
+            int userId = int.Parse(HttpContext.Session.GetString("UserId"));
+            RecordModel model = rds.getRecordByIdAndUserId(id, userId);
+            
+             return View(model);
+            
+        }
+
+        public ActionResult DoEdit(RecordModel model)
+        {
+            bool success = rds.doEdit(model);
+            if (success)
+            {
+                ViewBag.records = rds.readRecords();
+                return View("Index");
+            }
+            else
+            {
+                return View("EditRecord", model);
+            }
+        }
 
     }
 }

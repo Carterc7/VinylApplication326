@@ -152,5 +152,97 @@ namespace VinylApplication326.DAO
 
             }
         }
+
+        public RecordModel getRecordByIdAndUserId(int recordId, int userId)
+        {
+            // Define the query with parameter placeholders
+            string query = @"
+        SELECT Id, Name, Image, Video, Favorite, users_Id 
+        FROM records 
+        WHERE Id = @RecordId AND users_Id = @UserId";
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connString))
+                {
+                    connection.Open();
+
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        // Add parameters to prevent SQL injection
+                        command.Parameters.AddWithValue("@RecordId", recordId);
+                        command.Parameters.AddWithValue("@UserId", userId);
+
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                // Map data from the database to the RecordModel
+                                return new RecordModel
+                                {
+                                    Id = reader.GetInt32("Id"),
+                                    Name = reader["Name"].ToString(),
+                                    Image = reader["Image"] as string, // Safely handle null values
+                                    Video = reader["Video"] as string, // Safely handle null values
+                                    Favorite = reader.GetBoolean("Favorite"),
+                                    UsersId = reader.GetInt32("users_Id")
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error fetching record: {ex.Message}");
+            }
+
+            // Return a default value if no record is found
+            return null;
+        }
+
+        public bool doEdit(RecordModel model)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connString))
+                {
+                    connection.Open();
+
+                    string query = @"
+                UPDATE records
+                SET 
+                    Name = @Name,
+                    Image = @Image,
+                    Video = @Video,
+                    Favorite = @Favorite
+                WHERE Id = @Id AND 
+                    users_Id = @UsersId";
+
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        // Add parameters to prevent SQL injection
+                        command.Parameters.AddWithValue("@Name", model.Name);
+                        command.Parameters.AddWithValue("@Image", model.Image);
+                        command.Parameters.AddWithValue("@Video", model.Video);
+                        command.Parameters.AddWithValue("@Favorite", model.Favorite);
+                        command.Parameters.AddWithValue("@UsersId", model.UsersId);
+                        command.Parameters.AddWithValue("@Id", model.Id);
+
+                        // Execute the command and check if a row was updated
+                        int rowsAffected = command.ExecuteNonQuery();
+                        return rowsAffected > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the exception
+                Console.WriteLine($"Error updating record: {ex.Message}");
+                return false;
+            }
+        }
+
     }
 }
