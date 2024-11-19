@@ -33,5 +33,15 @@ namespace VinylApplication326.Services
         {
             return dao.deleteRecord(recordId, userId);
         }
+
+        public RecordModel getRecordByIdAndUserId(int recordId, int userId)
+        {
+            return dao.getRecordByIdAndUserId(recordId, userId);
+        }
+
+        public bool doEdit(RecordModel model)
+        {
+            return dao.doEdit(model);
+        }
     }
 }
