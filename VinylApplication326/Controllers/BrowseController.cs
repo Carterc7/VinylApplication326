@@ -87,5 +87,14 @@ namespace VinylApplication326.Controllers
             }
         }
 
+        public ActionResult Favorites()
+        {
+            records = rds.readRecords();
+
+            ViewBag.records = records;
+
+            return View();
+        }
+
     }
 }
