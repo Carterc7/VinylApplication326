@@ -11,7 +11,7 @@
 </style>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 @* <button type="button" class="btn btn-success btn-lg float-right">Add New +</button> *@
-<a href="@Url.Action("CreateRecord", "Browse")" class="btn btn-success btn-lg float-right">Add New +</a>
+<a href="@Url.Action("CreateFavorite", "Favorites")" class="btn btn-success btn-lg float-right">Add Favorite +</a>
 
 
 <table class="table table-striped">
@@ -50,7 +50,7 @@
                 </td>
                 <td>
                     <input type="button" data-id="@record.Id" class="delete-button" value="X" />
-                    <input type="button" data-id="@record.Id" class="edit-button" value="✎" onclick="window.location.href='/Browse/EditRecord/' + @record.Id" />
+                    <input type="button" data-id="@record.Id" class="edit-button" value="✎" onclick="window.location.href='/Favorites/EditFavorite/' + @record.Id" />
 
                 </td>
             </tr>
@@ -63,7 +63,7 @@
         var id = $(this).attr("data-id");
         $.ajax({
             type: "POST",
-            url: "/Browse/DeleteRecord",
+            url: "/Favorites/DeleteRecord",
             data: { id: id },
             success: function (response) {
                 if (response.success) {
