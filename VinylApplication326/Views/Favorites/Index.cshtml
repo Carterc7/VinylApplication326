@@ -1,0 +1,81 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    List<RecordModel> records = ViewBag.records;
+}
+<style>
+    .table td, .table th {
+        vertical-align: middle;
+    }
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@* <button type="button" class="btn btn-success btn-lg float-right">Add New +</button> *@
+<a href="@Url.Action("CreateFavorite", "Favorites")" class="btn btn-success btn-lg float-right">Add Favorite +</a>
+
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">Cover</th>
+            <th scope="col">Title</th>
+            <th scope="col">Play?</th>
+            <th scope="col">Favorite</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (RecordModel record in records)
+        {
+            <tr>
+                <th scope="row">
+                    <img class="record-cover" src="@record.Image" alt="@record.Image" style="border: 3px solid black;" />
+                </th>
+                <td><strong>@record.Name</strong></td>
+                <td><button type="button" class="btn btn-primary">Play</button></td>
+                <td>
+                    <form asp-action="FavoriteRecord" method="post">
+                        <input type="hidden" name="recordId" value="@record.Id" />
+                        <button type="submit" class="btn btn-link">
+                            @if (record.Favorite == true)
+                            {
+                                <img src="@Url.Content("~/star-curved-outline-filled.png")" alt="star" />
+                            }
+                            else if (record.Favorite == false)
+                            {
+                                <img src="@Url.Content("~/3d1b0c5a3d1d28385b2e22bc73d1cc4e.jpg")" alt="star" />
+                            }
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    <input type="button" data-id="@record.Id" class="delete-button" value="X" />
+                    <input type="button" data-id="@record.Id" class="edit-button" value="✎" onclick="window.location.href='/Favorites/EditFavorite/' + @record.Id" />
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    $(".delete-button").on("click", function (e) {
+        var id = $(this).attr("data-id");
+        $.ajax({
+            type: "POST",
+            url: "/Favorites/DeleteRecord",
+            data: { id: id },
+            success: function (response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    console.error("Error: The record could not be deleted.");
+                }
+            },
+            error: function (error) {
+                console.error("An error occurred while deleting the record", error);
+            }
+        });
+    });
+
+</script>

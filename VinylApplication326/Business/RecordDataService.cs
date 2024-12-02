@@ -43,5 +43,12 @@ namespace VinylApplication326.Services
         {
             return dao.doEdit(model);
         }
+
+        public List<RecordModel> readFavoriteRecords()
+        {
+            List<RecordModel> records = dao.GetFavoriteRecords();
+
+            return records;
+        }
     }
 }

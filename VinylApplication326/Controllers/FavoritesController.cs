@@ -1,36 +1,51 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Utilities;
-using VinylApplication326.DAO;
 using VinylApplication326.Models;
 using VinylApplication326.Services;
 
 namespace VinylApplication326.Controllers
 {
-    public class BrowseController : Controller
+    public class FavoritesController : Controller
     {
         private List<RecordModel> records;
         RecordDataService rds = new RecordDataService();
 
         public IActionResult Index()
         {
-            records = rds.readRecords();
+            records = rds.readFavoriteRecords();
 
             ViewBag.records = records;
-
             return View();
         }
 
-        [HttpPost]
-        public IActionResult FavoriteRecord(int recordId)
+        public ActionResult EditFavorite(int id)
         {
-            rds.favoriteRecord(recordId);
+            int userId = int.Parse(HttpContext.Session.GetString("UserId"));
+            RecordModel model = rds.getRecordByIdAndUserId(id, userId);
 
-            return RedirectToAction("Index"); 
+            return View(model);
+
         }
 
-        public ActionResult CreateRecord()
+        public ActionResult DoEdit(RecordModel model)
         {
-            return View();
+            bool success = rds.doEdit(model);
+            if (success)
+            {
+                ViewBag.records = rds.readFavoriteRecords();
+                return View("Index");
+            }
+            else
+            {
+                return View("EditFavorite", model);
+            }
+        }
+
+
+        public ActionResult CreateFavorite()
+        {
+            var m = new RecordModel();
+            m.Favorite = true;
+            return View(m);
         }
 
         public ActionResult DoCreate(RecordModel model)
@@ -40,12 +55,12 @@ namespace VinylApplication326.Controllers
             bool success = rds.createRecord(model);
             if (success)
             {
-                ViewBag.records = rds.readRecords();
+                ViewBag.records = rds.readFavoriteRecords();
                 return View("Index");
             }
             else
             {
-                ViewBag.records = rds.readRecords();
+                ViewBag.records = rds.readFavoriteRecords();
                 return View("Index");
             }
         }
@@ -63,31 +78,5 @@ namespace VinylApplication326.Controllers
                 return Json(new { success = false });
             }
         }
-
-        public ActionResult EditRecord(int id)
-        {
-            int userId = int.Parse(HttpContext.Session.GetString("UserId"));
-            RecordModel model = rds.getRecordByIdAndUserId(id, userId);
-            
-             return View(model);
-            
-        }
-
-        public ActionResult DoEdit(RecordModel model)
-        {
-            bool success = rds.doEdit(model);
-            if (success)
-            {
-                ViewBag.records = rds.readRecords();
-                return View("Index");
-            }
-            else
-            {
-                return View("EditRecord", model);
-            }
-        }
-
-
-
     }
 }
