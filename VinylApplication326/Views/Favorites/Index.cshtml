@@ -32,7 +32,14 @@
                     <img class="record-cover" src="@record.Image" alt="@record.Image" style="border: 3px solid black;" />
                 </th>
                 <td><strong>@record.Name</strong></td>
-                <td><button type="button" class="btn btn-primary">Play</button></td>
+                @if (record.Video == string.Empty)
+                {
+                    <td><button type="button" class="btn btn-secondary">Play</button></td>
+                }
+                else
+                {
+                    <td><button type="button" class="btn btn-primary" href="@record.Video">Play</button></td>
+                }
                 <td>
                     <form asp-action="FavoriteRecord" method="post">
                         <input type="hidden" name="recordId" value="@record.Id" />

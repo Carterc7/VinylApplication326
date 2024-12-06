@@ -26,6 +26,14 @@ namespace VinylApplication326.Services
 
         public bool createRecord(RecordModel model)
         {
+            if(model.Video == null)
+            {
+                model.Video = string.Empty;
+            }
+            if (model.Image == null)
+            {
+                model.Image = string.Empty;
+            }
             return dao.createRecord(model);
         }
 
@@ -41,6 +49,14 @@ namespace VinylApplication326.Services
 
         public bool doEdit(RecordModel model)
         {
+            if (model.Video == null)
+            {
+                model.Video = string.Empty;
+            }
+            if (model.Image == null)
+            {
+                model.Image = string.Empty;
+            }
             return dao.doEdit(model);
         }
 
