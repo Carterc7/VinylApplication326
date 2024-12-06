@@ -40,13 +40,11 @@ namespace VinylApplication326.Controllers
             bool success = rds.createRecord(model);
             if (success)
             {
-                ViewBag.records = rds.readRecords();
-                return View("Index");
+                return RedirectToAction("Index");
             }
             else
             {
-                ViewBag.records = rds.readRecords();
-                return View("Index");
+                return RedirectToAction("Index");
             }
         }
 
@@ -79,7 +77,7 @@ namespace VinylApplication326.Controllers
             if (success)
             {
                 ViewBag.records = rds.readRecords();
-                return View("Index");
+                return RedirectToAction("Index");
             }
             else
             {
