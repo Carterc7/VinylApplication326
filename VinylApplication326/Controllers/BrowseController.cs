@@ -16,7 +16,7 @@ namespace VinylApplication326.Controllers
             records = rds.readRecords();
 
             ViewBag.records = records;
-
+            
             return View();
         }
 
