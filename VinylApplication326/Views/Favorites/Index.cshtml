@@ -38,7 +38,7 @@
                 }
                 else
                 {
-                    <td><button type="button" class="btn btn-primary" href="@record.Video">Play</button></td>
+                    <td><button type="button" class="btn btn-primary videoLink" data="@record.Video">Play</button></td>
                 }
                 <td>
                     <form asp-action="FavoriteRecord" method="post">
@@ -83,6 +83,11 @@
                 console.error("An error occurred while deleting the record", error);
             }
         });
+    });
+
+    $(".videoLink").on("click", function (e) {
+        var link = e.target.getAttribute("data");
+        window.open(link);
     });
 
 </script>
