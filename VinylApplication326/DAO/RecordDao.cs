@@ -13,7 +13,7 @@ namespace VinylApplication326.DAO
 
         public RecordDao()
         {
-            
+            records = GetRecords(); // Load all records from the database
         }
 
         public List<RecordModel> GetRecords()
@@ -60,11 +60,17 @@ namespace VinylApplication326.DAO
 
         public void FavoriteToggle(int recordId)
         {
-            foreach (RecordModel record in this.records)
+            if (records == null)
+            {
+                records = GetRecords(); // Load records if not already loaded
+            }
+
+            foreach (RecordModel record in records)
             {
                 if (record.Id == recordId)
                 {
-                    record.Favorite = record.Favorite == true ? true : false;
+                    // Toggle the favorite status in memory
+                    record.Favorite = !record.Favorite;
                     break;
                 }
             }

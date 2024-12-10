@@ -13,19 +13,28 @@ namespace VinylApplication326.Controllers
 
         public IActionResult Index()
         {
-            records = rds.readRecords();
+            var records = rds.readRecords(); // Retrieve the records
+            foreach (var record in records)
+            {
+                Console.WriteLine($"Record ID: {record.Id}, Name: {record.Name}, Favorite: {record.Favorite}, Video: {record.Video}");
+            }
+            ViewBag.records = records; // Pass the records to the View
 
-            ViewBag.records = records;
-            
             return View();
         }
 
         [HttpPost]
-        public IActionResult FavoriteRecord(int recordId)
+        public JsonResult FavoriteRecord(int recordId)
         {
-            rds.favoriteRecord(recordId);
-
-            return RedirectToAction("Index"); 
+            try
+            {
+                rds.favoriteRecord(recordId);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
         public ActionResult CreateRecord()
