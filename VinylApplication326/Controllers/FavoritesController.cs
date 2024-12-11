@@ -51,6 +51,20 @@ namespace VinylApplication326.Controllers
             return View(m);
         }
 
+        [HttpPost]
+        public JsonResult FavoriteRecord(int recordId)
+        {
+            try
+            {
+                rds.favoriteRecord(recordId);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
         public ActionResult DoCreate(RecordModel model)
         {
             string userIdString = HttpContext.Session.GetString("UserId");
