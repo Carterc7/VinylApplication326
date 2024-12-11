@@ -19,15 +19,18 @@ namespace VinylApplication326.Controllers
 
         public ActionResult EditFavorite(int id)
         {
-            int userId = int.Parse(HttpContext.Session.GetString("UserId"));
+            int userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
+            Console.WriteLine($"Retrieved UserId from session: {userId}");  // Log UserId
+
             RecordModel model = rds.getRecordByIdAndUserId(id, userId);
 
             return View(model);
-
         }
 
         public ActionResult DoEdit(RecordModel model)
         {
+            Console.WriteLine($"RecordModel before update: Id={model.Id}, Name={model.Name}, UsersId={model.UsersId}");
+
             bool success = rds.doEdit(model);
             if (success)
             {
