@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="DoEdit">
+        <form asp-action="DoEdit" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input asp-for="Id" type="hidden" />
             <input asp-for="UsersId" type="hidden" />

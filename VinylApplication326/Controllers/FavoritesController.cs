@@ -19,15 +19,18 @@ namespace VinylApplication326.Controllers
 
         public ActionResult EditFavorite(int id)
         {
-            int userId = int.Parse(HttpContext.Session.GetString("UserId"));
+            int userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
+            Console.WriteLine($"Retrieved UserId from session: {userId}");  // Log UserId
+
             RecordModel model = rds.getRecordByIdAndUserId(id, userId);
 
             return View(model);
-
         }
 
         public ActionResult DoEdit(RecordModel model)
         {
+            Console.WriteLine($"RecordModel before update: Id={model.Id}, Name={model.Name}, UsersId={model.UsersId}");
+
             bool success = rds.doEdit(model);
             if (success)
             {
@@ -46,6 +49,20 @@ namespace VinylApplication326.Controllers
             var m = new RecordModel();
             m.Favorite = true;
             return View(m);
+        }
+
+        [HttpPost]
+        public JsonResult FavoriteRecord(int recordId)
+        {
+            try
+            {
+                rds.favoriteRecord(recordId);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
         public ActionResult DoCreate(RecordModel model)

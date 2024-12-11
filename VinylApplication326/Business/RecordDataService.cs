@@ -49,7 +49,7 @@ namespace VinylApplication326.Services
 
         public bool doEdit(RecordModel model)
         {
-            if (model.Video == null)
+            Console.WriteLine($"UsersId in Service: {model.UsersId}"); if (model.Video == null)
             {
                 model.Video = string.Empty;
             }

@@ -1,5 +1,4 @@
-﻿using Microsoft.CodeAnalysis.Elfie.Diagnostics;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using VinylApplication326.Models;
@@ -8,17 +7,11 @@ namespace VinylApplication326.DAO
 {
     public class RecordDao
     {
-        private List<RecordModel> records;
         private string connString = @"Server=127.0.0.1;port=3306;uid=root;password=root;database=vinylapp";
-
-        public RecordDao()
-        {
-            records = GetRecords(); // Load all records from the database
-        }
 
         public List<RecordModel> GetRecords()
         {
-            List<RecordModel> searchResults = new List<RecordModel>();
+            List<RecordModel> records = new List<RecordModel>();
 
             using (MySqlConnection connection = new MySqlConnection(connString))
             {
@@ -32,50 +25,28 @@ namespace VinylApplication326.DAO
                     {
                         try
                         {
-                            // Map data from the database to the RecordModel
-                            RecordModel record = new RecordModel
+                            records.Add(new RecordModel
                             {
-                                Id = reader.GetInt32("Id"), // Ensures we get the integer value directly
+                                Id = reader.GetInt32("Id"),
                                 Name = reader["Name"].ToString(),
-                                Image = reader["Image"] as string, // Safely handle null values
-                                Video = reader["Video"] as string,// Safely handle null values
-                                Favorite = reader.GetBoolean("Favorite"), // Assuming Favorite is stored as an integer (1 or 0)
-                                UsersId = reader.GetInt32("users_Id") // Ensure UsersId matches the field in your table
-                            };
-
-                            // Add the record to the results list
-                            searchResults.Add(record);
+                                Image = reader["Image"] as string,
+                                Video = reader["Video"] as string,
+                                Favorite = reader.GetBoolean("Favorite"),
+                                UsersId = reader.GetInt32("users_Id")
+                            });
                         }
                         catch (Exception ex)
                         {
-                            // Log any issues encountered while reading a record
                             Console.WriteLine($"Error reading record: {ex.Message}");
                         }
                     }
                 }
             }
-            return searchResults;
-            //return records;
+            return records;
         }
 
         public void FavoriteToggle(int recordId)
         {
-            if (records == null)
-            {
-                records = GetRecords(); // Load records if not already loaded
-            }
-
-            foreach (RecordModel record in records)
-            {
-                if (record.Id == recordId)
-                {
-                    // Toggle the favorite status in memory
-                    record.Favorite = !record.Favorite;
-                    break;
-                }
-            }
-
-            // Update the favorite status in the database
             using (MySqlConnection connection = new MySqlConnection(connString))
             {
                 connection.Open();
@@ -93,154 +64,140 @@ namespace VinylApplication326.DAO
         {
             using (MySqlConnection connection = new MySqlConnection(connString))
             {
-                
-                string query = "INSERT INTO records(Name, Image, Video, Favorite, users_Id) VALUES (@Name, @Image, @Video, @Favorite, @userId)";
+                string query = "INSERT INTO records (Name, Image, Video, Favorite, users_Id) VALUES (@Name, @Image, @Video, @Favorite, @UserId)";
 
-                MySqlCommand command = new MySqlCommand(query, connection);
-
-                command.Parameters.AddWithValue("@Name", record.Name);
-                command.Parameters.AddWithValue("@Image", record.Image);
-                command.Parameters.AddWithValue("@Video", record.Video);
-                command.Parameters.AddWithValue("@Favorite", record.Favorite);
-                command.Parameters.AddWithValue("@UserId", record.UsersId);
-                try
+                using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
-                    connection.Open();
-                    MySqlDataReader reader = command.ExecuteReader();
-                    //command.ExecuteNonQuery();
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    return false;
-                }
+                    command.Parameters.AddWithValue("@Name", record.Name);
+                    command.Parameters.AddWithValue("@Image", record.Image ?? string.Empty);
+                    command.Parameters.AddWithValue("@Video", record.Video ?? string.Empty);
+                    command.Parameters.AddWithValue("@Favorite", record.Favorite);
+                    command.Parameters.AddWithValue("@UserId", record.UsersId);
 
+                    try
+                    {
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        return false;
+                    }
+                }
             }
-            
         }
 
         public bool deleteRecord(int recordId, int userId)
         {
             using (MySqlConnection connection = new MySqlConnection(connString))
             {
+                string query = "DELETE FROM records WHERE Id = @RecordId AND users_Id = @UserId";
 
-                string query = "DELETE FROM records WHERE Id = @RecordId && users_Id = @UserId";
-
-                MySqlCommand command = new MySqlCommand(query, connection);
-
-                command.Parameters.AddWithValue("@RecordId", recordId);
-                command.Parameters.AddWithValue("@UserId", userId);
-                try
+                using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
-                    connection.Open();
-                    MySqlDataReader reader = command.ExecuteReader();
-                    //command.ExecuteNonQuery();
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    return false;
-                }
+                    command.Parameters.AddWithValue("@RecordId", recordId);
+                    command.Parameters.AddWithValue("@UserId", userId);
 
+                    try
+                    {
+                        connection.Open();
+                        return command.ExecuteNonQuery() > 0;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        return false;
+                    }
+                }
             }
         }
 
         public RecordModel getRecordByIdAndUserId(int recordId, int userId)
         {
-            // Define the query with parameter placeholders
             string query = @"
-        SELECT Id, Name, Image, Video, Favorite, users_Id 
-        FROM records 
-        WHERE Id = @RecordId AND users_Id = @UserId";
+                SELECT Id, Name, Image, Video, Favorite, users_Id 
+                FROM records 
+                WHERE Id = @RecordId AND users_Id = @UserId";
 
-            try
+            using (MySqlConnection connection = new MySqlConnection(connString))
             {
-                using (MySqlConnection connection = new MySqlConnection(connString))
+                connection.Open();
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
-                    connection.Open();
+                    command.Parameters.AddWithValue("@RecordId", recordId);
+                    command.Parameters.AddWithValue("@UserId", userId);
 
-                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    using (MySqlDataReader reader = command.ExecuteReader())
                     {
-                        // Add parameters to prevent SQL injection
-                        command.Parameters.AddWithValue("@RecordId", recordId);
-                        command.Parameters.AddWithValue("@UserId", userId);
-
-                        using (MySqlDataReader reader = command.ExecuteReader())
+                        if (reader.Read())
                         {
-                            if (reader.Read())
+                            return new RecordModel
                             {
-                                // Map data from the database to the RecordModel
-                                return new RecordModel
-                                {
-                                    Id = reader.GetInt32("Id"),
-                                    Name = reader["Name"].ToString(),
-                                    Image = reader["Image"] as string, // Safely handle null values
-                                    Video = reader["Video"] as string, // Safely handle null values
-                                    Favorite = reader.GetBoolean("Favorite"),
-                                    UsersId = reader.GetInt32("users_Id")
-                                };
-                            }
+                                Id = reader.GetInt32("Id"),
+                                Name = reader["Name"].ToString(),
+                                Image = reader["Image"] as string,
+                                Video = reader["Video"] as string,
+                                Favorite = reader.GetBoolean("Favorite"),
+                                UsersId = reader.GetInt32("users_Id")
+                            };
                         }
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                // Log the exception
-                Console.WriteLine($"Error fetching record: {ex.Message}");
-            }
 
-            // Return a default value if no record is found
             return null;
         }
 
         public bool doEdit(RecordModel model)
         {
-            try
+            using (MySqlConnection connection = new MySqlConnection(connString))
             {
-                using (MySqlConnection connection = new MySqlConnection(connString))
+                string query = @"
+            UPDATE records
+            SET 
+                Name = @Name,
+                Image = @Image,
+                Video = @Video,
+                Favorite = @Favorite
+            WHERE Id = @Id AND users_Id = @UsersId";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
-                    connection.Open();
+                    Console.WriteLine($"UsersId in DAO: {model.UsersId}");
+                    command.Parameters.AddWithValue("@Name", model.Name);
+                    command.Parameters.AddWithValue("@Image", model.Image ?? string.Empty);
+                    command.Parameters.AddWithValue("@Video", model.Video ?? string.Empty);
+                    command.Parameters.AddWithValue("@Favorite", model.Favorite);
+                    command.Parameters.AddWithValue("@UsersId", model.UsersId);
+                    command.Parameters.AddWithValue("@Id", model.Id);
 
-                    string query = @"
-                UPDATE records
-                SET 
-                    Name = @Name,
-                    Image = @Image,
-                    Video = @Video,
-                    Favorite = @Favorite
-                WHERE Id = @Id AND 
-                    users_Id = @UsersId";
-
-                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    try
                     {
-                        // Add parameters to prevent SQL injection
-                        command.Parameters.AddWithValue("@Name", model.Name);
-                        command.Parameters.AddWithValue("@Image", model.Image);
-                        command.Parameters.AddWithValue("@Video", model.Video);
-                        command.Parameters.AddWithValue("@Favorite", model.Favorite);
-                        command.Parameters.AddWithValue("@UsersId", model.UsersId);
-                        command.Parameters.AddWithValue("@Id", model.Id);
+                        connection.Open();
 
-                        // Execute the command and check if a row was updated
+                        // Debug SQL parameters
+                        Console.WriteLine($"SQL Query: {query}");
+                        Console.WriteLine($"@Name={model.Name}, @Image={model.Image}, @Video={model.Video}, @Favorite={model.Favorite}, @UsersId={model.UsersId}, @Id={model.Id}");
+
                         int rowsAffected = command.ExecuteNonQuery();
+                        Console.WriteLine($"Rows affected: {rowsAffected}");
                         return rowsAffected > 0;
                     }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error updating record: {ex.Message}");
+                        return false;
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                // Log or handle the exception
-                Console.WriteLine($"Error updating record: {ex.Message}");
-                return false;
             }
         }
 
         public List<RecordModel> GetFavoriteRecords()
         {
-            List<RecordModel> searchResults = new List<RecordModel>();
+            List<RecordModel> records = new List<RecordModel>();
 
             using (MySqlConnection connection = new MySqlConnection(connString))
             {
@@ -254,29 +211,25 @@ namespace VinylApplication326.DAO
                     {
                         try
                         {
-                            // Map data from the database to the RecordModel
-                            RecordModel record = new RecordModel
+                            records.Add(new RecordModel
                             {
-                                Id = reader.GetInt32("Id"), // Ensures we get the integer value directly
+                                Id = reader.GetInt32("Id"),
                                 Name = reader["Name"].ToString(),
-                                Image = reader["Image"] as string, // Safely handle null values
-                                Video = reader["Video"] as string,// Safely handle null values
-                                Favorite = reader.GetBoolean("Favorite"), // Assuming Favorite is stored as an integer (1 or 0)
-                                UsersId = reader.GetInt32("users_Id") // Ensure UsersId matches the field in your table
-                            };
-
-                            // Add the record to the results list
-                            searchResults.Add(record);
+                                Image = reader["Image"] as string,
+                                Video = reader["Video"] as string,
+                                Favorite = reader.GetBoolean("Favorite"),
+                                UsersId = reader.GetInt32("users_Id")
+                            });
                         }
                         catch (Exception ex)
                         {
-                            // Log any issues encountered while reading a record
                             Console.WriteLine($"Error reading record: {ex.Message}");
                         }
                     }
                 }
             }
-            return searchResults;
+            return records;
         }
     }
 }
+
